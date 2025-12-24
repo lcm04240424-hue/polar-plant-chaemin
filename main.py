@@ -134,46 +134,34 @@ with tab3:
     
     # 생육 결과 분석
     growth_data_filtered = growth_data[selected_school] if selected_school != "전체" else pd.concat(growth_data.values())
-    growth_fig = make_subplots(rows=2, cols=2,
-                               subplot_titles=["평균 생중량", "평균 잎 수", "평균 지상부 길이", "개체수 비교"])
-    
-    # 생중량 분석
-  # 생육 결과 분석
-growth_data_filtered = growth_data[selected_school] if selected_school != "전체" else pd.concat(growth_data.values())
 
-# 컬럼 이름 확인 및 정리
-growth_data_filtered.columns = growth_data_filtered.columns.str.strip()  # 공백 제거
-growth_data_filtered.columns = growth_data_filtered.columns.str.replace(" ", "")  # 공백 제거
+    # 컬럼 이름 확인 및 정리
+    growth_data_filtered.columns = growth_data_filtered.columns.str.strip()  # 공백 제거
+    growth_data_filtered.columns = growth_data_filtered.columns.str.replace(" ", "")  # 공백 제거
 
-# EC와 생중량 컬럼이 실제로 존재하는지 확인
-if 'EC' in growth_data_filtered.columns and '생중량' in growth_data_filtered.columns:
-    # 생중량 분석
-    growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['생중량'].mean().index,
-                                y=growth_data_filtered.groupby('EC')['생중량'].mean(), name="평균 생중량"), row=1, col=1)
-    growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['잎수'].mean().index,
-                                y=growth_data_filtered.groupby('EC')['잎수'].mean(), name="평균 잎 수"), row=1, col=2)
-    growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['지상부길이'].mean().index,
-                                y=growth_data_filtered.groupby('EC')['지상부길이'].mean(), name="평균 지상부 길이"), row=2, col=1)
-    growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['개체수'].mean().index,
-                                y=growth_data_filtered.groupby('EC')['개체수'].mean(), name="개체수"), row=2, col=2)
-else:
-    st.error("컬럼 'EC' 또는 '생중량'이 데이터에 없습니다. 데이터를 확인해 주세요.")
+    # EC와 생중량 컬럼이 실제로 존재하는지 확인
+    if 'EC' in growth_data_filtered.columns and '생중량' in growth_data_filtered.columns:
+        # 생중량 분석
+        growth_fig = make_subplots(rows=2, cols=2,
+                                   subplot_titles=["평균 생중량", "평균 잎 수", "평균 지상부 길이", "개체수 비교"])
+        
+        growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['생중량'].mean().index,
+                                    y=growth_data_filtered.groupby('EC')['생중량'].mean(), name="평균 생중량"), row=1, col=1)
+        growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['잎수'].mean().index,
+                                    y=growth_data_filtered.groupby('EC')['잎수'].mean(), name="평균 잎 수"), row=1, col=2)
+        growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['지상부길이'].mean().index,
+                                    y=growth_data_filtered.groupby('EC')['지상부길이'].mean(), name="평균 지상부 길이"), row=2, col=1)
+        growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['개체수'].mean().index,
+                                    y=growth_data_filtered.groupby('EC')['개체수'].mean(), name="개체수"), row=2, col=2)
+        
+        growth_fig.update_layout(title_text="생육 결과 분석", showlegend=True)
+        st.plotly_chart(growth_fig)
 
-# 그래프 레이아웃 업데이트
-growth_fig.update_layout(title_text="생육 결과 분석", showlegend=True)
-st.plotly_chart(growth_fig)
-
-    
-    # 개체수 비교
-    growth_fig.add_trace(go.Bar(x=growth_data_filtered.groupby('EC')['개체수'].mean().index
-                                y=growth_data_filtered.groupby('EC')['개체수'].mean(), name="개체수"), row=2, col=2)
-    
-    growth_fig.update_layout(title_text="생육 결과 분석", showlegend=True)
-    st.plotly_chart(growth_fig)
-
-    # XLSX 다운로드
-    st.subheader(f"{selected_school} 생육 결과 다운로드")
-    buffer = io.BytesIO()
-    growth_data_filtered.to_excel(buffer, index=False, engine="openpyxl")
-    buffer.seek(0)
-    st.download_button(label="다운로드 생육 데이터", data=buffer, file_name="growth_data.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        # XLSX 다운로드
+        st.subheader(f"{selected_school} 생육 결과 다운로드")
+        buffer = io.BytesIO()
+        growth_data_filtered.to_excel(buffer, index=False, engine="openpyxl")
+        buffer.seek(0)
+        st.download_button(label="다운로드 생육 데이터", data=buffer, file_name="growth_data.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    else:
+        st.error("컬럼 'EC' 또는 '생중량'이 데이터에 없습니다. 데이터를 확인해 주세요.")
